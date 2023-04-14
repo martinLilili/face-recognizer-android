@@ -35,6 +35,8 @@ import android.util.TypedValue;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.FrameLayout;
+import android.widget.ImageView;
+import android.widget.TextView;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
@@ -96,10 +98,16 @@ public class MainActivity extends CameraActivity implements OnImageAvailableList
     private boolean initialized = false;
     private boolean training = false;
 
+    TextView tvCost;
+    TextView tvResult;
+    ImageView ivPreview;
+
     @Override
     protected void onCreate(final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
+        tvCost = findViewById(R.id.tv_cost);
+        tvResult = findViewById(R.id.tv_result);
+        ivPreview = findViewById(R.id.iv_preview);
         FrameLayout container = findViewById(R.id.container);
         initSnackbar = Snackbar.make(
                 container, getString(R.string.initializing), Snackbar.LENGTH_INDEFINITE);
@@ -147,7 +155,7 @@ public class MainActivity extends CameraActivity implements OnImageAvailableList
         previewWidth = size.getWidth();
         previewHeight = size.getHeight();
 
-        sensorOrientation = rotation - getScreenOrientation();
+        sensorOrientation = 90;
         LOGGER.i("Camera orientation relative to screen canvas: %d", sensorOrientation);
 
         LOGGER.i("Initializing at size %dx%d", previewWidth, previewHeight);
@@ -245,7 +253,7 @@ public class MainActivity extends CameraActivity implements OnImageAvailableList
                 sensorOrientation,
                 originalLuminance,
                 timestamp);
-        trackingOverlay.postInvalidate();
+//        trackingOverlay.postInvalidate();
 
         // No mutex needed as this method is not reentrant.
         if (computingDetection || !initialized || training) {
@@ -253,6 +261,7 @@ public class MainActivity extends CameraActivity implements OnImageAvailableList
             return;
         }
         computingDetection = true;
+        long time = System.currentTimeMillis();
         LOGGER.i("Preparing image " + currTimestamp + " for detection in bg thread.");
 
         rgbFrameBitmap.setPixels(getRgbBytes(), 0, previewWidth, 0, 0, previewWidth, previewHeight);
@@ -285,6 +294,26 @@ public class MainActivity extends CameraActivity implements OnImageAvailableList
 
                     requestRender();
                     computingDetection = false;
+                    LOGGER.i("detectface getresult " + mappedRecognitions.size());
+                    LOGGER.i("detectface cost " + (System.currentTimeMillis() - time));
+//                    try {
+//                        Thread.sleep(2000);
+//                    } catch (InterruptedException e) {
+//                        e.printStackTrace();
+//                    }
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            ivPreview.setImageBitmap(cropCopyBitmap);
+                            tvCost.setText((System.currentTimeMillis() - time) + "");
+                            if (mappedRecognitions.size() > 0) {
+                                tvResult.setText(mappedRecognitions.get(0).getTitle() + "");
+                            } else {
+                                tvResult.setText("");
+                            }
+
+                        }
+                    });
                 });
     }
 

@@ -24,6 +24,7 @@ import android.graphics.Rect;
 import android.graphics.RectF;
 import android.net.Uri;
 import android.os.ParcelFileDescriptor;
+import android.util.Log;
 
 import java.io.FileDescriptor;
 import java.nio.FloatBuffer;
@@ -145,8 +146,10 @@ public class Recognizer {
     }
 
     List<Recognition> recognizeImage(Bitmap bitmap, Matrix matrix) {
+//        Log.d("Recognizer ", "recognizeImage");
         synchronized (this) {
             List<RectF> faces = blazeFace.detect(bitmap);
+            Log.d("RECON", "faces count " + faces.size());
             final List<Recognition> mappedRecognitions = new LinkedList<>();
 
             for (RectF rectF : faces) {

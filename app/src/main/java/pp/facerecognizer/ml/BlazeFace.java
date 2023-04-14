@@ -5,6 +5,7 @@ import android.content.res.AssetManager;
 import android.graphics.Bitmap;
 import android.graphics.RectF;
 import android.os.Trace;
+import android.util.Log;
 
 import org.tensorflow.lite.Interpreter;
 
@@ -295,6 +296,8 @@ public class BlazeFace {
         List<RectF> retained_detections = WeightedNonMaxSuppression(indexed_scores, detections);
 
         Trace.endSection(); // "detect"
+
+        Log.d("Blaze ", "detect");
         return retained_detections;
     }
 

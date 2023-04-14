@@ -42,6 +42,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.text.TextUtils;
+import android.util.Log;
 import android.util.Size;
 import android.util.SparseIntArray;
 import android.view.LayoutInflater;
@@ -569,7 +570,7 @@ public class CameraConnectionFragment extends Fragment {
         if (null == textureView || null == previewSize || null == activity) {
             return;
         }
-        final int rotation = activity.getWindowManager().getDefaultDisplay().getRotation();
+        final int rotation = 3;
         final Matrix matrix = new Matrix();
         final RectF viewRect = new RectF(0, 0, viewWidth, viewHeight);
         final RectF bufferRect = new RectF(0, 0, previewSize.getHeight(), previewSize.getWidth());
@@ -587,7 +588,9 @@ public class CameraConnectionFragment extends Fragment {
         } else if (Surface.ROTATION_180 == rotation) {
             matrix.postRotate(180, centerX, centerY);
         }
+        Log.d("CCF", "rotation " + rotation);
         textureView.setTransform(matrix);
+        textureView.setAspectRatio(previewSize.getHeight(), previewSize.getWidth());
     }
 
     /**
